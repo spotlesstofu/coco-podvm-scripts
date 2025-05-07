@@ -19,7 +19,7 @@ function local_help()
     echo "components into a given disk"
     echo ""
     echo "Options (define them as variable):"
-    echo "ARTIFACTS_FOLDER:      optional  - where the podvm binaries and pause bundle are. Default $SCRIPT_FOLDER/podvm"
+    echo "ARTIFACTS_FOLDER:      optional  - where the podvm binaries and pause bundle are. Default $SCRIPT_FOLDER/coco/podvm"
     echo "PODVM_BINARY:          optional - registry containing podvm binary. Default:$PODVM_BINARY_DEF "
     echo "PODVM_BINARY_LOCATION: optional - location in container containing podvm binary. Default: $PODVM_BINARY_LOCATION_DEF"
     echo "PAUSE_BUNDLE:          optional - registry containing pause bundle. Default: $PAUSE_BUNDLE_DEF"
@@ -33,7 +33,7 @@ PODVM_BINARY_LOCATION=${PODVM_BINARY_LOCATION:-"$PODVM_BINARY_LOCATION_DEF"}
 PAUSE_BUNDLE=${PAUSE_BUNDLE:-"$PAUSE_BUNDLE_DEF"}
 PAUSE_BUNDLE_LOCATION=${PAUSE_BUNDLE_LOCATION:-"$PAUSE_BUNDLE_LOCATION_DEF"}
 
-ARTIFACTS_FOLDER=${ARTIFACTS_FOLDER:-"$SCRIPT_FOLDER/podvm"}
+ARTIFACTS_FOLDER=${ARTIFACTS_FOLDER:-"$SCRIPT_FOLDER/coco/podvm"}
 
 if [ -z ${INPUT_IMAGE} ]; then
     local_help

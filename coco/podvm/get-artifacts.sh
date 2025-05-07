@@ -26,9 +26,6 @@ if [ -z ${DEST_PATH} ]; then
     exit 1
 fi
 
-SCRIPT_FOLDER=$(dirname $0)
-SCRIPT_FOLDER=$(realpath $SCRIPT_FOLDER)
-
 export PODMAN_IGNORE_CGROUPSV1_WARNING=1
 
 function download_and_extract()

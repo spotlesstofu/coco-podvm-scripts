@@ -451,3 +451,4 @@ get_image_id
 cd -
 # rm -rf $WORK_FOLDER/*.vhd
 rm -rf $WORK_FOLDER/*.raw
+echo "VHD generated file and deployment template are in $WORK_FOLDER"
