@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Compute/galleries/images/versions",
+            "apiVersion": "2023-07-03",
+            "name": "INSERT_NAME_HERE",
+            "location": "INSERT_LOCATION_HERE",
+            "properties": {
+                "storageProfile": {
+                    "osDiskImage": {
+                        "source": {
+                            "id": "INSERT_ID_HERE",
+                            "uri": "INSERT_URI_HERE"
+                        },
+                        "hostCaching": "ReadOnly"
+                    }
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "signatureTemplateNames": [
+                            "MicrosoftUefiCertificateAuthorityTemplate"
+                        ],
+                        "additionalSignatures": {
+                            "db": [
+                                {
+                                    "type": "x509",
+                                    "value": [
+                                        "INSERT_VALUE_HERE"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
