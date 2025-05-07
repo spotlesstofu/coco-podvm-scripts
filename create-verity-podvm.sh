@@ -23,13 +23,10 @@ function local_help()
     echo "1. create new certificates for the new image secureboot db, if not provided"
     echo "2. install coco guest components in the disk"
     echo "3. call verity script to verity protect the root disk"
-    # echo "4. call upload script to create a dm-verity vhd and upload it to Azure"
     echo ""
     echo "Options (define them as variable):"
-    # echo "IMAGE_CERTIFICATE_DER:      optional  - certificate in DER format to upload in the gallery. Default: generate a new one"
     echo "IMAGE_CERTIFICATE_PEM:      mandatory  - certificate in PEM format to upload in the gallery"
     echo "IMAGE_PRIVATE_KEY:          mandatory  - key to sign the verity cmdline addon"
-    # echo "SB_CERT_NAME:               optional  - name of the secureboot certificate added into the gallery. Default: My custom certificate"
     echo "WORK_FOLDER:                optional   - where to create artifacts. Defaults to a temp folder in /tmp"
     echo ""
     echo "Verity options (define them as variable):"
@@ -48,20 +45,6 @@ function local_help()
     echo "PAUSE_BUNDLE_LOCATION:      optional   - location in container containing pause bundle. Default: $PAUSE_BUNDLE_LOCATION_DEF"
     echo "ROOT_PASSWORD:              optional   - set root's password. Default: disabled"
     echo ""
-    # echo "Upload options (define them as variable):"
-    # echo "AZURE_RESOURCE_GROUP:       mandatory - az resource group where to create the gallery"
-    # echo "AZURE_REGION:               optional  - az region where to create the gallery. Default: eastus"
-    # echo "IMAGE_GALLERY_NAME:         optional  - az gallery name. Default: my_gallery"
-    # echo "IMAGE_DEFINITION_NAME:      optional  - az image definition name. Default: podvm-image"
-    # echo "IMAGE_DEFINITION_PUBLISHER: optional  - az image definition publisher. Default: dm-verity"
-    # echo "IMAGE_DEFINITION_OFFER:     optional  - az image definition offer. Default: MyPublisher"
-    # echo "IMAGE_DEFINITION_SKU:       optional  - az image definition sku. Default: My-PodVM"
-    # echo "IMAGE_VERSION:              optional  - az image version. Default: My-PodVM"
-    # echo "IMAGE_BLOB_NAME:            optional  - az image storage blob name. Default: 1.0.0"
-    # echo "AZURE_SB_TEMPLATE:          optional  - az deployment template to automatically fill. Default: $SCRIPT_FOLDER/azure/azure-sb-template.json"
-    # echo "AZURE_DEPLOYMENT_NAME:      optional  - az deployment name. Default: my-deployment"
-    # echo "UPLOAD_SCRIPT_LOCATION:     optional  - location of the upload-azure.sh script. Default: $SCRIPT_FOLDER/azure/upload-azure.sh"
-    # echo ""
     echo "Exiting"
 }
 
@@ -82,21 +65,7 @@ if [[ -z "${IMAGE_PRIVATE_KEY}" || -z "${IMAGE_CERTIFICATE_PEM}" ]]; then
     exit 1
 fi
 
-# if [ -z ${AZURE_RESOURCE_GROUP} ]; then
-#     echo "AZURE_RESOURCE_GROUP is unset. Set it with AZURE_RESOURCE_GROUP=your-rg"
-#     echo "Exiting"
-#     exit 1
-# fi
-
 INPUT_IMAGE=$(realpath "$INPUT_IMAGE")
-
-# UPLOAD_SCRIPT_LOCATION=${UPLOAD_SCRIPT_LOCATION:-"$SCRIPT_FOLDER/azure/upload-azure.sh"}
-# UPLOAD_SCRIPT_LOCATION=$(realpath "$UPLOAD_SCRIPT_LOCATION")
-
-# IMAGE_CERTIFICATE_DER=${IMAGE_CERTIFICATE_DER:-""}
-# IMAGE_CERTIFICATE_PEM=${IMAGE_CERTIFICATE_PEM:-"$SCRIPT_FOLDER/public_key.pem"}
-# IMAGE_PRIVATE_KEY=${IMAGE_PRIVATE_KEY:-"$SCRIPT_FOLDER/private.key"}
-# SB_CERT_NAME=${SB_CERT_NAME:-"My custom certificate"}
 
 VERITY_SCRIPT_LOCATION=${VERITY_SCRIPT_LOCATION:-"$SCRIPT_FOLDER/verity/verity.sh"}
 VERITY_SCRIPT_LOCATION=$(realpath "$VERITY_SCRIPT_LOCATION")
@@ -109,12 +78,9 @@ function print_params()
     echo ""
     echo "WORK_FOLDER: $WORK_FOLDER"
     echo "INPUT_IMAGE: $INPUT_IMAGE"
-    # echo "IMAGE_CERTIFICATE_DER: $IMAGE_CERTIFICATE_DER"
     echo "IMAGE_CERTIFICATE_PEM: $IMAGE_CERTIFICATE_PEM"
     echo "IMAGE_PRIVATE_KEY: $IMAGE_PRIVATE_KEY"
-    # echo "SB_CERT_NAME: $SB_CERT_NAME"
     echo "VERITY_SCRIPT_LOCATION: $VERITY_SCRIPT_LOCATION"
-    # echo "UPLOAD_SCRIPT_LOCATION: $UPLOAD_SCRIPT_LOCATION"
     echo "COCO_SCRIPT_LOCATION: $COCO_SCRIPT_LOCATION"
     echo ""
 }
@@ -209,22 +175,6 @@ export VERITY_FOLDER=$WORK_FOLDER
 export ROOT_PARTITION_UUID
 $VERITY_SCRIPT_LOCATION $INPUT_IMAGE
 echo ""
-
-# echo "Uploading to Azure..."
-# export AZURE_RESOURCE_GROUP
-# export AZURE_REGION
-# export IMAGE_GALLERY_NAME
-# export IMAGE_DEFINITION_NAME
-# export IMAGE_DEFINITION_PUBLISHER
-# export IMAGE_DEFINITION_OFFER
-# export IMAGE_DEFINITION_SKU
-# export IMAGE_VERSION
-# export IMAGE_BLOB_NAME
-# export SCRIPT_FOLDER # needed if AZURE_SB_TEMPLATE is undefined
-# export AZURE_SB_TEMPLATE
-# export AZURE_DEPLOYMENT_NAME
-# export WORK_FOLDER
-# $UPLOAD_SCRIPT_LOCATION $INPUT_IMAGE $IMAGE_CERTIFICATE_DER
 
 cd -
 rm -rf $WORK_FOLDER
