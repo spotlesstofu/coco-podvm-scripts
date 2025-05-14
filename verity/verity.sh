@@ -121,6 +121,7 @@ function resize_disk()
 
 function find_efi_root_part()
 {
+    echo "Searching for root partition..."
     EFI_PN=$(lsblk -o NAME,PARTTYPE -r $NBD_DEVICE | grep $EFI_PARTITION_UUID)
     num_results=$(echo "$EFI_PN" | wc -l)
     if [[ "$num_results" -ne 1 || -z "$EFI_PN" ]]; then
@@ -157,7 +158,7 @@ function fix_bootx_cmdline()
 
 function call_fsck()
 {
-    fs_type=$(blkid -o value -s TYPE /dev/$ROOT_PN)
+    fs_type=$(sudo blkid -o value -s TYPE /dev/$ROOT_PN)
     sudo fsck.$fs_type -p /dev/$ROOT_PN
     echo "fsck applied"
 }
@@ -232,6 +233,7 @@ print_params
 
 if [ "$RESIZE_DISK" = "yes" ]; then
     echo ""
+    echo "Resizing disk..."
     resize_disk $DISK
 fi
 

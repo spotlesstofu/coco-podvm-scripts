@@ -84,6 +84,6 @@ function extract_container_image() {
 }
 
 [[ ! -e $DEST_PATH/$PODVM_BINARY_LOCATION ]] && download_and_extract $PODVM_BINARY $PODVM_BINARY_LOCATION
-echo ""
+
 # extract_container_image registry.redhat.io/openshift-sandboxed-containers/osc-podvm-payload-rhel9 1.8.1 /tmp/pause pause
 [[ ! -e $DEST_PATH/$PAUSE_BUNDLE_LOCATION ]] && download_and_extract $PAUSE_BUNDLE $PAUSE_BUNDLE_LOCATION
