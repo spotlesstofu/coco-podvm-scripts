@@ -63,7 +63,7 @@ RHEL_QCOW2=rhel_9.6-x86_64-cvm.qcow2
 
 create-verity-podvm.sh $RHEL_QCOW2
 ```
-As a result. the input image will contain coco-components and be dm-verity protected.
+As a result, the input image will contain coco-components and be dm-verity protected.
 
 6. Optionally, upload yourself the image on Azure image gallery using `azure/upload-azure.sh`. In order to use that script, define the following variables (available also by running `azure/upload-azure.sh help`):
 ```
