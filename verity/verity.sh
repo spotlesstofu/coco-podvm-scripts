@@ -188,7 +188,7 @@ function apply_dmverity()
     rm -rf $WORKDIR
 
     if [ "$RH" == "TBD" ]; then
-        echo "RH is TBD, something went wrong. Make sure the image you are using doesn't have a /verity partition already!"
+        echo "roothash is TBD, something went wrong. Make sure the image you are using doesn't have a /verity partition already!"
         echo "Exiting."
         exit 1
     fi
