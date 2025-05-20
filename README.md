@@ -1,9 +1,9 @@
 # How to create a dm-verity image via container
 
-1. Download official RHEL ISO and build a CVM with `ks/rhel9-dm-root.ks`:
+1. Download official RHEL ISO and build a CVM with `helpers/rhel9-dm-root.ks`:
 ```
 ISO_PATH=RHEL-9.6.0-x86_64-dvd1.iso
-KS_LOCATION=ks/rhel9-dm-root.ks
+KS_LOCATION=helpers/rhel9-dm-root.ks
 
 virt-install --virt-type kvm --os-variant rhel9.0 --arch x86_64 --boot uefi --name rhel-uki --memory 8192 --location $ISO_PATH --disk bus=scsi,size=5 --initrd-inject=$KS_LOCATION --nographics --extra-args "console=ttyS0 inst.ks=file:/rhel9-dm-root.ks" --transient
 ```
