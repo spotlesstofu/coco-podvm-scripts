@@ -18,9 +18,9 @@ sudo podman build -t coco-podvm \
 sudo podman run --rm \
     --privileged \
     -v $QCOW2:/disk.qcow2 \
-    -v $IMAGE_CERTIFICATE_PEM:/public.pem \
-    -v $IMAGE_PRIVATE_KEY:/private.key \
-    -v /lib/modules:/lib/modules \
+    -v $IMAGE_CERTIFICATE_PEM:/public.pem:ro,Z \
+    -v $IMAGE_PRIVATE_KEY:/private.key:ro,Z \
+    -v /lib/modules:/lib/modules:ro,Z \
     --user 0 \
     --security-opt=apparmor=unconfined \
     --security-opt=seccomp=unconfined \
