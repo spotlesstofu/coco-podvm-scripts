@@ -61,6 +61,9 @@ DISK=$(realpath "$DISK")
 VERITY_FOLDER=${VERITY_FOLDER:-$(mktemp -d)}
 VERITY_FOLDER=$(realpath "$VERITY_FOLDER")
 
+ADDON_SBAT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
+coco-podvm-uki-addon,1,Red Hat,coco-podvm-uki-addon,1,mailto:secalert@redhat.com"
+
 nbd_mounted=0
 esp_mounted=0
 
@@ -221,7 +224,7 @@ function create_uki_addon()
         ADDON_OPTIONS="--secureboot-private-key=$SB_PRIVATE_KEY --secureboot-certificate=$SB_CERTIFICATE"
         echo "Signing addon with $SB_PRIVATE_KEY and $SB_CERTIFICATE"
     fi
-    /usr/lib/systemd/ukify build --cmdline="roothash=$RH systemd.volatile=overlay" --output=$ADDON_NAME $ADDON_OPTIONS
+    /usr/lib/systemd/ukify build --cmdline="roothash=$RH systemd.volatile=overlay" --output=$ADDON_NAME --sbat="$ADDON_SBAT" $ADDON_OPTIONS
     echo "Created UKI addon $UKI_NAME.extra.d/$ADDON_NAME"
     /usr/lib/systemd/ukify inspect $ADDON_NAME
     cd - > /dev/null
