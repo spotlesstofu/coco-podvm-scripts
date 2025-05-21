@@ -101,11 +101,11 @@ AZURE_RESOURCE_GROUP:       mandatory - az resource group where to create the ga
 AZURE_REGION:               optional  - az region where to create the gallery. Default: eastus
 IMAGE_GALLERY_NAME:         optional  - az gallery name. Default: my_gallery
 IMAGE_DEFINITION_NAME:      optional  - az image definition name. Default: podvm-image
-IMAGE_DEFINITION_PUBLISHER: optional  - az image definition publisher. Default: dm-verity
-IMAGE_DEFINITION_OFFER:     optional  - az image definition offer. Default: MyPublisher
+IMAGE_DEFINITION_PUBLISHER: optional  - az image definition publisher. Default: MyPublisher
+IMAGE_DEFINITION_OFFER:     optional  - az image definition offer. Default: My-PodVM
 IMAGE_DEFINITION_SKU:       optional  - az image definition sku. Default: My-PodVM
-IMAGE_VERSION:              optional  - az image version. Default: My-PodVM
-IMAGE_BLOB_NAME:            optional  - az image storage blob name. Default: 1.0.0
+IMAGE_VERSION:              optional  - az image version. Default: 1.0.0
+IMAGE_BLOB_NAME:            optional  - az image storage blob name. Default: dm-verity
 AZURE_SB_TEMPLATE:          optional  - az deployment template to automatically fill. Default: ./azure/azure-sb-template.json
 AZURE_DEPLOYMENT_NAME:      optional  - az deployment name. Default: my-deployment
 UPLOAD_SCRIPT_LOCATION:     optional  - location of the upload-azure.sh script. Default: ./azure/upload-azure.sh
