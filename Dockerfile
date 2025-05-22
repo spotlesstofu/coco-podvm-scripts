@@ -6,7 +6,7 @@ ARG ACTIVATION_KEY
 # This registering RHEL when building on an unsubscribed system
 # If you are running a UBI container on a registered and subscribed RHEL host,
 # the main RHEL Server repository is enabled inside the standard UBI container.
-# Uncomment this and provide the associated ARG variables to register.
+# Provide the associated ARG variables to register.
 RUN if [[ -n "${ACTIVATION_KEY}" && -n "${ORG_ID}" ]]; then \
     rm -f /etc/rhsm-host && rm -f /etc/pki/entitlement-host; \
     subscription-manager register --org=${ORG_ID} --activationkey=${ACTIVATION_KEY}; \
@@ -21,9 +21,6 @@ RUN dnf install -y cpio systemd-ukify jq openssl qemu-img libguestfs
 RUN curl -O https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
     dnf install -y epel-release-latest-9.noarch.rpm && \
     rm epel-release-latest-9.noarch.rpm
-
-# Install dnf plugins
-# RUN dnf install -y dnf-plugins-core
 
 # Install virt-customize and dependencies
 RUN dnf install -y guestfs-tools libguestfs-tools sbsigntools
