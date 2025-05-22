@@ -14,7 +14,6 @@ ln -s ../afterburn-checkin.service /etc/systemd/system/multi-user.target.wants/a
 tar -xzvf /tmp/podvm-binaries.tar.gz -C /
 tar -xzvf /tmp/pause-bundle.tar.gz -C /
 # set luks
-#dnf install -y e2fsprogs
 # TODO: move to payload ?
 tar -xzvf /tmp/luks-config.tar.gz -C /
 

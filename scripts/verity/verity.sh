@@ -113,9 +113,12 @@ CONSOLE_CMDLINE="console=ttyS0"
 function resize_disk()
 {
     DISK_RESIZE=$1
+    LUKS_MINIMAL_SPACE_MB=100
     MB=$((1024 * 1024))
     current_size=$(qemu-img info -f $DISK_FORMAT --output json $DISK_RESIZE | jq '."virtual-size"')
     new_size=$((current_size * 110 / 100))
+    luks_min_space=$((LUKS_MINIMAL_SPACE_MB * MB))
+    new_size=$((new_size + luks_min_space))
     rounded_size=$(((new_size + MB - 1) / MB * MB))
     echo "Current disk size: $current_size"
     echo "New disk size: $rounded_size"
@@ -171,20 +174,22 @@ function apply_dmverity()
     # create config files and folders for systemd-repart and UKI
     WORKDIR=conf
     mkdir $WORKDIR
-    # Verity partition has to be 10% of the original partition
+    # Verity partition has to be 10% of the original partition (256MB).
+    # Exagerate and give 512MB
     echo "[Partition]
     Type=root-verity
     Verity=hash
     VerityMatchKey=root
-    Weight=100
-    SizeMinBytes=64M" > $WORKDIR/verity.conf
+    SizeMinBytes=64M
+    SizeMaxBytes=512M" > $WORKDIR/verity.conf
 
     # Used just to reference the root
+    # Fix the root size to 2.5GB because that's what it is provided. It shouldn't grow.
     echo "[Partition]
     Type=root
     Verity=data
     VerityMatchKey=root
-    Weight=1000" > $WORKDIR/root.conf
+    SizeMaxBytes=2560M" > $WORKDIR/root.conf
 
     systemd-repart $NBD_DEVICE --dry-run=no --definitions=$WORKDIR --no-pager --json=pretty | jq -r '.[] | select(.type == "root-x86-64-verity") | .roothash' > $WORKDIR/roothash.txt
     RH=$(cat $WORKDIR/roothash.txt)
