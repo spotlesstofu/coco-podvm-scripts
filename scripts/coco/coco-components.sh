@@ -71,6 +71,9 @@ export PAUSE_BUNDLE_LOCATION
 export DEST_PATH=$ARTIFACTS_FOLDER
 $ARTIFACTS_FOLDER/get-artifacts.sh
 
+# create luks-config.tar.gz
+$ARTIFACTS_FOLDER/luks-scratch/build.sh
+
 echo ""
 ls $ARTIFACTS_FOLDER
 
