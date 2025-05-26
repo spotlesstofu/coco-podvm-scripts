@@ -22,7 +22,7 @@ The purpose of this script is to create a private key and public DER and PEM cer
 The only input command is to specify where to store the key and certs.
 
 Options (define them as variable):
-SB_CERT_NAME:               optional  - name of the secureboot certificate added into the gallery. Default: My custom certificate
+SB_CERT_NAME:  optional  - name of the secureboot certificate added into the gallery. Default: My custom certificate
 ```
 
 4. Build the container (if `dnf install` fails, make sure podman has logged into your RHEL account)
