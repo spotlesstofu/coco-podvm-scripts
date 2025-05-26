@@ -64,6 +64,9 @@ VERITY_FOLDER=$(realpath "$VERITY_FOLDER")
 ADDON_SBAT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
 coco-podvm-uki-addon,1,Red Hat,coco-podvm-uki-addon,1,mailto:secalert@redhat.com"
 
+LUKS_MINIMAL_SPACE_MB=100
+VERITY_MAX_SPACE_MB=512
+
 nbd_mounted=0
 esp_mounted=0
 
@@ -113,12 +116,12 @@ CONSOLE_CMDLINE="console=ttyS0"
 function resize_disk()
 {
     DISK_RESIZE=$1
-    LUKS_MINIMAL_SPACE_MB=100
     MB=$((1024 * 1024))
     current_size=$(qemu-img info -f $DISK_FORMAT --output json $DISK_RESIZE | jq '."virtual-size"')
-    new_size=$((current_size * 110 / 100))
+    # new_size=$((current_size * 110 / 100)) # increase 10% for verity - obsolete
     luks_min_space=$((LUKS_MINIMAL_SPACE_MB * MB))
-    new_size=$((new_size + luks_min_space))
+    verity_max_space=$((VERITY_MAX_SPACE_MB * MB))
+    new_size=$((current_size + luks_min_space + verity_max_space))
     rounded_size=$(((new_size + MB - 1) / MB * MB))
     echo "Current disk size: $current_size"
     echo "New disk size: $rounded_size"
@@ -180,8 +183,9 @@ function apply_dmverity()
     Type=root-verity
     Verity=hash
     VerityMatchKey=root
+    PaddingWeight=1
     SizeMinBytes=64M
-    SizeMaxBytes=512M" > $WORKDIR/verity.conf
+    SizeMaxBytes=${VERITY_MAX_SPACE_MB}M" > $WORKDIR/verity.conf
 
     # Used just to reference the root
     # Fix the root size to 2.5GB because that's what it is provided. It shouldn't grow.
