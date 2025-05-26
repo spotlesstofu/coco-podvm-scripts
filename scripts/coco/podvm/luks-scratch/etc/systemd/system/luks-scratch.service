@@ -5,6 +5,7 @@ Description=Format LUKS Scratch Partition
 Requires=systemd-repart.service
 After=systemd-repart.service
 BindsTo=dev-disk-by\x2dpartlabel-scratch.device
+Before=kata-agent.service
 
 [Service]
 Type=oneshot
@@ -12,4 +13,4 @@ RemainAfterExit=yes
 ExecStart=/usr/local/sbin/format-scratch.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sysinit.target
