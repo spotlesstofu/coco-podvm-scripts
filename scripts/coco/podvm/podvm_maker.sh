@@ -21,3 +21,45 @@ tar -xzvf /tmp/luks-config.tar.gz -C /
 semanage fcontext -a -t bin_t /usr/sbin/ip && restorecon -v /usr/sbin/ip
 
 systemctl enable /etc/systemd/system/luks-scratch.service
+
+# Configuration to make PCR values to be printed at boot
+cat <<EOF > /usr/libexec/gen-issue
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if ! tpm2_pcrread sha256:0 > /dev/null 2>&1; then
+   echo "No vTPM detected"
+   exit 0
+fi
+
+mkdir -p /run/issue.d
+
+rm -f /etc/issue.net
+rm -f /etc/issue
+{
+  echo "Detected vTPM PCR values:"
+  /usr/bin/tpm2_pcrread sha256:all
+  echo
+} > /run/issue.d/30-pcrs.issue
+EOF
+
+# this will allow /run/issue and /run/issue.d to take precedence
+mv /etc/issue.d /usr/lib/issue.d || true
+rm -f /etc/issue.net
+rm -f /etc/issue
+
+chmod +x /usr/libexec/gen-issue
+cat  <<EOF > /etc/systemd/system/gen-issue.service
+[Unit]
+Description=Generate issue to print to serial console at startup
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/gen-issue
+
+[Install]
+WantedBy=multi-user.target
+EOF
+ln -s ../gen-issue.service /etc/systemd/system/multi-user.target.wants/gen-issue.service
