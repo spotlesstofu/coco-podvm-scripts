@@ -63,3 +63,11 @@ ExecStart=/usr/libexec/gen-issue
 WantedBy=multi-user.target
 EOF
 ln -s ../gen-issue.service /etc/systemd/system/multi-user.target.wants/gen-issue.service
+
+# configuration to extend PCR8 with the initdata.digest
+mkdir -p /etc/systemd/system/process-user-data.service.d/
+cat  <<EOF > /etc/systemd/system/process-user-data.service.d/10-override.conf
+[Service]
+# The digest is a string in hex representation, we truncate it to a 32 bytes hex string
+ExecStartPost=-/bin/bash -c 'tpm2_pcrextend 8:sha256=\$(head -c64 /run/peerpod/initdata.digest)'
+EOF
