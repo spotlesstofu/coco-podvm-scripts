@@ -20,10 +20,4 @@ tar -xzvf /tmp/luks-config.tar.gz -C /
 # fixes a failure of the podns@netns service
 semanage fcontext -a -t bin_t /usr/sbin/ip && restorecon -v /usr/sbin/ip
 
-# remove the /kata-containers bind mount, otherwise, agent will fail to create
-# container's overlay fs on top of the / (/kata-containers) overlay (created by
-# systemd.volatile
-rm /etc/systemd/system/run-kata\\x2dcontainers.mount
-mkdir /run/kata-containers
-
 systemctl enable /etc/systemd/system/luks-scratch.service
