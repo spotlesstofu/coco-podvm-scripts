@@ -7,7 +7,7 @@ if [ -z ${IMAGE_PATH} ]; then
     exit 1
 fi
 
-cp $IMAGE_PATH .
-FILENAME=$(basename $IMAGE_PATH)
-podman build -t coco-podvm --build-arg PODVM_IMAGE_SRC=$FILENAME .
-rm -f $FILENAME
+cp "$IMAGE_PATH" .
+FILENAME=$(basename "$IMAGE_PATH")
+podman build -t coco-podvm --build-arg PODVM_IMAGE_SRC="$FILENAME" .
+rm -f "$FILENAME"
