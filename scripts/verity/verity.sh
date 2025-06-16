@@ -178,7 +178,7 @@ function apply_dmverity()
     WORKDIR=conf
     mkdir $WORKDIR
     # Verity partition has to be 10% of the original partition (256MB).
-    # Exagerate and give 512MB
+    # Exaggerate and give 512MB
     echo "[Partition]
     Type=root-verity
     Verity=hash
