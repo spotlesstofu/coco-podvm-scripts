@@ -77,8 +77,10 @@ function print_params()
     echo "DISK: $DISK"
     echo "DISK_FORMAT: $DISK_FORMAT"
     echo "RESIZE_DISK: $RESIZE_DISK"
-    echo "SB_PRIVATE_KEY: $SB_PRIVATE_KEY"
-    echo "SB_CERTIFICATE: $SB_CERTIFICATE"
+    if [[ -n "${SB_PRIVATE_KEY}" && -n "${SB_CERTIFICATE}" ]]; then
+        echo "SB_PRIVATE_KEY: $SB_PRIVATE_KEY"
+        echo "SB_CERTIFICATE: $SB_CERTIFICATE"
+    fi
     echo "NBD_DEV: $NBD_DEV"
     echo ""
 }
