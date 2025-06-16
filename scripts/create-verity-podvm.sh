@@ -25,8 +25,8 @@ function local_help()
     echo "3. call verity script to verity protect the root disk"
     echo ""
     echo "Options (define them as variable):"
-    echo "IMAGE_CERTIFICATE_PEM:      mandatory  - certificate in PEM format to upload in the gallery"
-    echo "IMAGE_PRIVATE_KEY:          mandatory  - key to sign the verity cmdline addon"
+    echo "IMAGE_CERTIFICATE_PEM:      optional  - certificate in PEM format to upload in the gallery"
+    echo "IMAGE_PRIVATE_KEY:          optional  - key to sign the verity cmdline addon"
     echo "WORK_FOLDER:                optional   - where to create artifacts. Defaults to a temp folder in /tmp"
     echo ""
     echo "Verity options (define them as variable):"
@@ -58,13 +58,6 @@ if [[ $INPUT_IMAGE == "help" ]]; then
     exit 0
 fi
 
-if [[ -z "${IMAGE_PRIVATE_KEY}" || -z "${IMAGE_CERTIFICATE_PEM}" ]]; then
-    echo "Error: define IMAGE_PRIVATE_KEY and IMAGE_CERTIFICATE_PEM."
-    echo "It is possible to create certs with helpers/create-certs.sh"
-    echo "Exiting."
-    exit 1
-fi
-
 INPUT_IMAGE=$(realpath "$INPUT_IMAGE")
 
 VERITY_SCRIPT_LOCATION=${VERITY_SCRIPT_LOCATION:-"$SCRIPT_FOLDER/verity/verity.sh"}
@@ -78,8 +71,10 @@ function print_params()
     echo ""
     echo "WORK_FOLDER: $WORK_FOLDER"
     echo "INPUT_IMAGE: $INPUT_IMAGE"
-    echo "IMAGE_CERTIFICATE_PEM: $IMAGE_CERTIFICATE_PEM"
-    echo "IMAGE_PRIVATE_KEY: $IMAGE_PRIVATE_KEY"
+    if [[ -n "${IMAGE_PRIVATE_KEY}" && -n "${IMAGE_CERTIFICATE_PEM}" ]]; then
+        echo "IMAGE_CERTIFICATE_PEM: $IMAGE_CERTIFICATE_PEM"
+        echo "IMAGE_PRIVATE_KEY: $IMAGE_PRIVATE_KEY"
+    fi
     echo "VERITY_SCRIPT_LOCATION: $VERITY_SCRIPT_LOCATION"
     echo "COCO_SCRIPT_LOCATION: $COCO_SCRIPT_LOCATION"
     echo ""
@@ -168,8 +163,10 @@ echo ""
 echo "Calling verity..."
 export DISK_FORMAT
 export RESIZE_DISK
-export SB_PRIVATE_KEY=$IMAGE_PRIVATE_KEY
-export SB_CERTIFICATE=$IMAGE_CERTIFICATE_PEM
+if [[ -n "${IMAGE_PRIVATE_KEY}" && -n "${IMAGE_CERTIFICATE_PEM}" ]]; then
+    export SB_PRIVATE_KEY=$IMAGE_PRIVATE_KEY
+    export SB_CERTIFICATE=$IMAGE_CERTIFICATE_PEM
+fi
 export NBD_DEV
 export VERITY_FOLDER=$WORK_FOLDER
 export ROOT_PARTITION_UUID

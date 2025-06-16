@@ -13,7 +13,7 @@ Image will be stored in `~/.local/share/libvirt/images/$QCOW2_NAME.qcow2`
 
 2. Do custom modifications in the image
 
-3. If not available, generate private key, PEM and DER certificates using `helpers/create-certs.sh`
+3. Optional: if not available, generate private key, PEM and DER certificates using `helpers/create-certs.sh`. This is only needed if secureboot has to be enabled.
 ```
 Usage: ./helpers/create-certs.sh <OUTPUT_FOLDER>
 Usage: ./helpers/create-certs.sh help
@@ -33,6 +33,9 @@ sudo podman build my-coco-podvm .
 5. Export the following mandatory variables
 ```
 QCOW2=path/where/qcow2/is
+```
+And if certificates are being used:
+```
 IMAGE_CERTIFICATE_PEM=path/where/pem_cert/is
 IMAGE_PRIVATE_KEY=path/where/private_key/is
 ```
@@ -48,8 +51,8 @@ The purpose of this script is to take a disk and:
 3. call verity script to verity protect the root disk
 
 Options (define them as variable):
-IMAGE_CERTIFICATE_DER:      mandatory  - certificate in DER format to upload in the gallery. Default: generate a new one
-IMAGE_CERTIFICATE_PEM:      mandatory  - certificate in PEM format to upload in the gallery. Default: generate a new one
+IMAGE_CERTIFICATE_DER:      optional  - certificate in DER format to upload in the gallery. Default: generate a new one
+IMAGE_CERTIFICATE_PEM:      optional  - certificate in PEM format to upload in the gallery. Default: generate a new one
 IMAGE_PRIVATE_KEY:          optional   - key to sign the verity cmdline addon. Default: generate a new one
 SB_CERT_NAME:               optional   - name of the secureboot certificate added into the gallery. Default: My custom certificate
 WORK_FOLDER:                optional   - where to create artifacts. Defaults to a temp folder in /tmp
@@ -90,12 +93,12 @@ As a result, the input image will contain coco-components and be dm-verity prote
 
 8. Optionally, upload yourself the image on Azure image gallery using `azure/upload-azure.sh`. In order to use that script, define the following variables (usage message available also by running `azure/upload-azure.sh help`):
 ```
-Usage: azure/upload-azure.sh <INPUT_IMAGE> <DER_CERTIFICATE>
+Usage: azure/upload-azure.sh <INPUT_IMAGE> [<DER_CERTIFICATE>]
 Usage: azure/upload-azure.sh help
 
 The purpose of this script is to take a disk and:
 1. convert the disk into vhd
-2. create a deployment with a custom secureboot certificate
+2. if DER_CERTIFICATE is defined, create a deployment with a custom secureboot certificate
 3. upload the vhd to Azure
 4. create an Azure image gallery with that disk
 
