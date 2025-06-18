@@ -32,7 +32,7 @@ ADD scripts /scripts
 ENV LIBGUESTFS_BACKEND=direct
 
 # default env for certs
-ENV IMAGE_CERTIFICATE_PEM=/public.pem
-ENV IMAGE_PRIVATE_KEY=/private.key
+# ENV IMAGE_CERTIFICATE_PEM=/public.pem
+# ENV IMAGE_PRIVATE_KEY=/private.key
 
 CMD ["/scripts/create-verity-podvm.sh", "/disk.qcow2"]
