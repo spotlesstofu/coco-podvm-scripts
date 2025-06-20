@@ -5,7 +5,7 @@ metadata:
     pipelines.openshift.io/runtime: generic
     pipelines.openshift.io/strategy: docker
     pipelines.openshift.io/used-by: build-cloud
-  name: docker-build-oci-ta
+  name: build-pipeline
 spec:
   description: |
     This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -49,7 +49,7 @@ spec:
       description: Force rebuild image
       name: rebuild
       type: string
-    - default: "false"
+    - default: "true"
       description: Skip checks against built image
       name: skip-checks
       type: string
@@ -84,6 +84,24 @@ spec:
     - default: "false"
       description: Whether to enable privileged mode, should be used only with remote VMs
       name: privileged-nested
+      type: string
+    - name: build-platforms
+      description: List of platforms to build the disk images on. The available
+        set of values is determined by the configuration of the multi-platform-controller.
+      type: array
+      default:
+        - linux-root/amd64
+    - name: image-type
+      description: Image type to build 
+      type: string
+      default: "qcow2"
+    - description: config.toml file to pass to BIB
+      default: "config-qcow2.toml"
+      type: string
+      name: config-toml
+    - description: path to bib yaml file
+      default: "bib.yaml"
+      name: bib-file
       type: string
   results:
     - name: IMAGE_URL
@@ -167,10 +185,102 @@ spec:
           workspace: git-auth
         - name: netrc
           workspace: netrc
+    # build bootc container image
     - name: build-container
       params:
         - name: IMAGE
-          value: $(params.output-image)
+          value: $(params.output-image)-bootc
+        - name: DOCKERFILE
+          value: Containerfile
+          # value: $(params.dockerfile)
+        - name: CONTEXT
+          value: $(params.path-context)
+        - name: HERMETIC
+          value: $(params.hermetic)
+        - name: PREFETCH_INPUT
+          value: $(params.prefetch-input)
+        - name: IMAGE_EXPIRES_AFTER
+          value: $(params.image-expires-after)
+        - name: COMMIT_SHA
+          value: $(tasks.clone-repository.results.commit)
+        - name: BUILD_ARGS
+          value:
+            - $(params.build-args[*])
+        - name: BUILD_ARGS_FILE
+          value: $(params.build-args-file)
+        - name: PRIVILEGED_NESTED
+          value: $(params.privileged-nested)
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
+        - name: CACHI2_ARTIFACT
+          value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
+      runAfter:
+        - prefetch-dependencies
+      taskRef:
+        params:
+          - name: name
+            value: buildah-oci-ta
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-buildah-oci-ta:0.4@sha256:d90c4cf682189faab5c702e55f4855242e228ce1a05e54e1734b7b9c6fa40441
+          - name: kind
+            value: task
+        resolver: bundles
+      when:
+        - input: $(tasks.init.results.build)
+          operator: in
+          values:
+            - "true"
+      workspaces: []
+    # build vm image from bootc container image (depends on previous task)
+    - name: build-vm-image
+      timeout: "3h0m00s"
+      matrix:
+        params:
+          - name: PLATFORM
+            value:
+              - $(params.build-platforms)
+      params:
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        - name: CONTEXT
+          value: $(params.path-context)
+        - name: IMAGE_TYPE
+          value: $(params.image-type)
+        - name: PREFETCH_INPUT
+          value: $(params.prefetch-input)
+        - name: IMAGE_EXPIRES_AFTER
+          value: $(params.image-expires-after)
+        - name: COMMIT_SHA
+          value: $(tasks.clone-repository.results.commit)
+        - name: OUTPUT_IMAGE
+          value: $(params.output-image)-qcow2
+        - name: CONFIG_TOML_FILE
+          value: $(params.config-toml)
+        - name: BIB_CONFIG_FILE
+          value: $(params.bib-file)
+        - name: IMAGE_APPEND_PLATFORM
+          value: "true"
+      runAfter:
+        - build-container
+      taskRef:
+        resolver: bundles
+        params:
+          - name: name
+            value: build-vm-image
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-build-vm-image:0.1@sha256:fc417806532d53bd204fd124f0424fe205124bd5e4b893c14935c89e24a30e04
+          - name: kind
+            value: task
+      when:
+        - input: $(tasks.init.results.build)
+          operator: in
+          values:
+            - "true"
+    # build container image for vm image manipulation
+    - name: build-libguestfs-container
+      params:
+        - name: IMAGE
+          value: $(params.output-image)-libguestfs
         - name: DOCKERFILE
           value: $(params.dockerfile)
         - name: CONTEXT
@@ -211,6 +321,45 @@ spec:
           values:
             - "true"
       workspaces: []
+    # manipulate vm image (depends on previous two tasks)
+    - name: verity
+      timeout: "3h0m00s"
+      matrix:
+        params:
+          - name: PLATFORM
+            value:
+              - $(params.build-platforms)
+      params:
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        - name: CONTEXT
+          value: $(params.path-context)
+        - name: IMAGE_TYPE
+          value: $(params.image-type)
+        - name: PREFETCH_INPUT
+          value: $(params.prefetch-input)
+        - name: IMAGE_EXPIRES_AFTER
+          value: $(params.image-expires-after)
+        - name: COMMIT_SHA
+          value: $(tasks.clone-repository.results.commit)
+        - name: OUTPUT_IMAGE
+          value: $(params.output-image)
+        - name: CONFIG_TOML_FILE
+          value: $(params.config-toml)
+        - name: BIB_CONFIG_FILE
+          value: $(params.bib-file)
+        - name: IMAGE_APPEND_PLATFORM
+          value: "true"
+      runAfter:
+        - build-libguestfs-container
+        - build-vm-image
+      taskRef:
+        name: verity
+      when:
+        - input: $(tasks.init.results.build)
+          operator: in
+          values:
+            - "true"
     - name: build-image-index
       params:
         - name: IMAGE
