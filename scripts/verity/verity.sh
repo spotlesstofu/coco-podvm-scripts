@@ -1,5 +1,6 @@
 #! /bin/bash
 set -e
+set -x
 
 # Given a qcow2, apply dm-verity on it
 
