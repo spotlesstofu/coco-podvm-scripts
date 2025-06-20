@@ -1,0 +1,4 @@
+# BIB: Bootc Image Builder Config
+bootc-builder-image: "registry.redhat.io/rhel9/bootc-image-builder@sha256:80dd56b96ddfcca2fd241bdd847937b067c50eb6b47050095b4683368360260a"
+source-image: "registry.redhat.io/rhel9/rhel-bootc@sha256:5795b5fe5e08ac98dd240a4e959fa6080c8f155a6f3d45cc150894002358b790"
+tagged-as: "registry.redhat.io/openshift-sandboxed-containers/dm-verity-image:1"

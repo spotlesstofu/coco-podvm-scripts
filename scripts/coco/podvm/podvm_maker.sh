@@ -8,14 +8,17 @@ ConditionKernelCommandLine=
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/afterburn --provider=azure --check-in
+
+[Install]
+WantedBy=multi-user.target
 EOF
-ln -s ../afterburn-checkin.service /etc/systemd/system/multi-user.target.wants/afterburn-checkin.service
+systemctl enable afterburn-checkin.service
 
 tar -xzvf /tmp/podvm-binaries.tar.gz -C /
 tar -xzvf /tmp/pause-bundle.tar.gz -C /
 # set luks
 # TODO: move to payload ?
-tar -xzvf /tmp/luks-config.tar.gz -C /
+# tar -xzvf /tmp/luks-config.tar.gz -C /
 
 # fixes a failure of the podns@netns service
 semanage fcontext -a -t bin_t /usr/sbin/ip && restorecon -v /usr/sbin/ip
@@ -62,7 +65,7 @@ ExecStart=/usr/libexec/gen-issue
 [Install]
 WantedBy=multi-user.target
 EOF
-ln -s ../gen-issue.service /etc/systemd/system/multi-user.target.wants/gen-issue.service
+systemctl enable gen-issue.service
 
 # configuration to extend PCR8 with the initdata.digest
 mkdir -p /etc/systemd/system/process-user-data.service.d/
