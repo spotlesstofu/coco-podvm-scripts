@@ -102,8 +102,8 @@ function handle_ctrlc()
     exit 0
 }
 
-trap handle_ctrlc SIGINT
-trap handle_ctrlc EXIT
+# trap handle_ctrlc SIGINT
+# trap handle_ctrlc EXIT
 
 DISK_FORMAT=${DISK_FORMAT:-"raw"}
 APPLY_VERITY=${APPLY_VERITY:-"true"}
@@ -285,9 +285,15 @@ if [ "$APPLY_VERITY" = "true" ]; then
     create_uki_addon
 fi
 
-
-# Cleanup
+# umount
 qemu-nbd --disconnect $NBD_DEVICE
 nbd_mounted=0
+
+# Test
+set -x
+fdisk -l $NBD_DEVICE
+set +x
+
+# Cleanup
 rm -rf mnt
 cd $here
