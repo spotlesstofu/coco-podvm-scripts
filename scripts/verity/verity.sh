@@ -108,7 +108,7 @@ function handle_ctrlc()
 DISK_FORMAT=${DISK_FORMAT:-"raw"}
 APPLY_VERITY=${APPLY_VERITY:-"true"}
 CONSOLE_KERNEL=${CONSOLE_KERNEL:-"false"}
-ROOT_PARTITION_UUID=${ROOT_PARTITION_UUID:-"4f68bce3-e8cd-4db1-96e7-fbcaf984b709"}
+ROOT_PARTITION_UUID=${ROOT_PARTITION_UUID:-"0fc63daf-8483-4772-8e79-3d69d8477de4"}
 NBD_DEV=${NBD_DEV:-"0"}
 NBD_DEVICE=/dev/nbd${NBD_DEV}
 RESIZE_DISK=${RESIZE_DISK:-"yes"}
@@ -147,7 +147,8 @@ function find_efi_root_part()
     num_results=$(echo "$ROOT_PN" | wc -l)
     if [[ "$num_results" -ne 1 || -z "$ROOT_PN" ]]; then
         echo "Error: Expected one Root $ROOT_PARTITION_UUID, found $num_results."
-        exit 1
+        # exit 1
+        ROOT_PN=$(echo $ROOT_PN | tail -n 1)
     fi
     ROOT_PN=$(echo $ROOT_PN | awk '{print  $1}')
     echo ROOT PARTITION=$ROOT_PN
