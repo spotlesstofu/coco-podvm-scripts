@@ -1,0 +1,7 @@
+---
+metadata: 
+  version: "1.0"
+artifacts:
+  - download_url: "https://download.devel.redhat.com/rhel-9/nightly/RHEL-9/RHEL-9.5.0-20240719.2/compose/BaseOS/x86_64/images/rhel-guest-image-9.5-20240719.2.x86_64.qcow2"
+    checksum: "sha256:fd4d96b658f685cb2360fbeba925e74d81eb146c3809eef42aba4b6b7c90f4c7" 
+    filename: "rhel.qcow2"
