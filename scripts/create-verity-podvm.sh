@@ -9,11 +9,6 @@ here=`pwd`
 SCRIPT_FOLDER=$(dirname $0)
 SCRIPT_FOLDER=$(realpath $SCRIPT_FOLDER)
 
-PODVM_BINARY_DEF=registry.redhat.io/openshift-sandboxed-containers/osc-podvm-payload-rhel9:1.9.0
-PODVM_BINARY_LOCATION_DEF=/podvm-binaries.tar.gz
-PAUSE_BUNDLE_DEF=quay.io/confidential-containers/podvm-binaries-ubuntu-amd64:v0.13.0
-PAUSE_BUNDLE_LOCATION_DEF=/pause-bundle.tar.gz
-
 function local_help()
 {
     echo "Usage: $0 <INPUT_IMAGE>"
