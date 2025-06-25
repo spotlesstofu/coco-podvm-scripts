@@ -64,7 +64,7 @@ VERITY_FOLDER=$(realpath "$VERITY_FOLDER")
 ADDON_SBAT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
 coco-podvm-uki-addon,1,Red Hat,coco-podvm-uki-addon,1,mailto:secalert@redhat.com"
 
-LUKS_MINIMAL_SPACE_MB=100
+LUKS_MINIMAL_SPACE_MB=2500
 VERITY_MAX_SPACE_MB=512
 
 nbd_mounted=0
