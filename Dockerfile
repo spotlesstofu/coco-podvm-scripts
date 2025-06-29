@@ -15,7 +15,7 @@ RUN if [[ -n "${ACTIVATION_KEY}" && -n "${ORG_ID}" ]]; then \
 RUN dnf -y update
 
 # packages needed
-RUN dnf install -y cpio systemd-ukify jq openssl qemu-img libguestfs
+RUN dnf install -y cpio systemd-ukify jq openssl qemu-img libguestfs podman && dnf clean all
 
 # Add EPEL
 RUN curl -O https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \

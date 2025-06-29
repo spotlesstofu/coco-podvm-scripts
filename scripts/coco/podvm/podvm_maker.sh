@@ -68,6 +68,8 @@ ln -s ../gen-issue.service /etc/systemd/system/multi-user.target.wants/gen-issue
 mkdir -p /etc/systemd/system/process-user-data.service.d/
 cat  <<EOF > /etc/systemd/system/process-user-data.service.d/10-override.conf
 [Service]
+# mount config disk if available
+ExecStartPre=-/bin/mount -t iso9660 -o ro /dev/disk/by-label/cidata /media/cidata
 # The digest is a string in hex representation, we truncate it to a 32 bytes hex string
 ExecStartPost=-/bin/bash -c 'tpm2_pcrextend 8:sha256=\$(head -c64 /run/peerpod/initdata.digest)'
 EOF
