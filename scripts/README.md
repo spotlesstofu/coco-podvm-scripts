@@ -26,9 +26,9 @@ ROOT_PARTITION_UUID:        optional   - UUID to find the root. Defaults to the 
 CoCo guest options (define them as variable):
 
 ARTIFACTS_FOLDER:           optional   - where the podvm binaries and pause bundle are. Default ./coco/podvm
-PODVM_BINARY:               optional   - registry containing podvm binary. Default:registry.redhat.io/openshift-sandboxed-containers/osc-podvm-payload-rhel9:1.9.0
+PODVM_BINARY:               optional   - registry containing podvm binary. Default: $PODVM_BINARY_DEF
 PODVM_BINARY_LOCATION:      optional   - location in container containing podvm binary. Default: /podvm-binaries.tar.gz
-PAUSE_BUNDLE:               optional   - registry containing pause bundle. Default: quay.io/confidential-containers/podvm-binaries-ubuntu-amd64:v0.13.0
+PAUSE_BUNDLE:               optional   - registry containing pause bundle. Default: $PAUSE_BUNDLE_DEF
 PAUSE_BUNDLE_LOCATION:      optional   - location in container containing pause bundle. Default: /pause-bundle.tar.gz
 ROOT_PASSWORD:              optional   - set root's password. Default: disabled
 

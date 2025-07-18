@@ -64,6 +64,9 @@ VERITY_FOLDER=$(realpath "$VERITY_FOLDER")
 ADDON_SBAT="sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
 coco-podvm-uki-addon,1,Red Hat,coco-podvm-uki-addon,1,mailto:secalert@redhat.com"
 
+LUKS_MINIMAL_SPACE_MB=2500
+VERITY_MAX_SPACE_MB=512
+
 nbd_mounted=0
 esp_mounted=0
 
@@ -74,8 +77,10 @@ function print_params()
     echo "DISK: $DISK"
     echo "DISK_FORMAT: $DISK_FORMAT"
     echo "RESIZE_DISK: $RESIZE_DISK"
-    echo "SB_PRIVATE_KEY: $SB_PRIVATE_KEY"
-    echo "SB_CERTIFICATE: $SB_CERTIFICATE"
+    if [[ -n "${SB_PRIVATE_KEY}" && -n "${SB_CERTIFICATE}" ]]; then
+        echo "SB_PRIVATE_KEY: $SB_PRIVATE_KEY"
+        echo "SB_CERTIFICATE: $SB_CERTIFICATE"
+    fi
     echo "NBD_DEV: $NBD_DEV"
     echo ""
 }
@@ -115,7 +120,10 @@ function resize_disk()
     DISK_RESIZE=$1
     MB=$((1024 * 1024))
     current_size=$(qemu-img info -f $DISK_FORMAT --output json $DISK_RESIZE | jq '."virtual-size"')
-    new_size=$((current_size * 110 / 100))
+    # new_size=$((current_size * 110 / 100)) # increase 10% for verity - obsolete
+    luks_min_space=$((LUKS_MINIMAL_SPACE_MB * MB))
+    verity_max_space=$((VERITY_MAX_SPACE_MB * MB))
+    new_size=$((current_size + luks_min_space + verity_max_space))
     rounded_size=$(((new_size + MB - 1) / MB * MB))
     echo "Current disk size: $current_size"
     echo "New disk size: $rounded_size"
@@ -171,20 +179,23 @@ function apply_dmverity()
     # create config files and folders for systemd-repart and UKI
     WORKDIR=conf
     mkdir $WORKDIR
-    # Verity partition has to be 10% of the original partition
+    # Verity partition has to be 10% of the original partition (256MB).
+    # Exaggerate and give 512MB
     echo "[Partition]
     Type=root-verity
     Verity=hash
     VerityMatchKey=root
-    Weight=100
-    SizeMinBytes=64M" > $WORKDIR/verity.conf
+    PaddingWeight=1
+    SizeMinBytes=64M
+    SizeMaxBytes=${VERITY_MAX_SPACE_MB}M" > $WORKDIR/verity.conf
 
     # Used just to reference the root
+    # Fix the root size to 2.5GB because that's what it is provided. It shouldn't grow.
     echo "[Partition]
     Type=root
     Verity=data
     VerityMatchKey=root
-    Weight=1000" > $WORKDIR/root.conf
+    SizeMaxBytes=2560M" > $WORKDIR/root.conf
 
     systemd-repart $NBD_DEVICE --dry-run=no --definitions=$WORKDIR --no-pager --json=pretty | jq -r '.[] | select(.type == "root-x86-64-verity") | .roothash' > $WORKDIR/roothash.txt
     RH=$(cat $WORKDIR/roothash.txt)

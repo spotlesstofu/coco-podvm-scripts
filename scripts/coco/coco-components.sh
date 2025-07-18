@@ -5,9 +5,9 @@ INPUT_IMAGE=$1
 SCRIPT_FOLDER=${SCRIPT_FOLDER:-$(dirname $0)}
 SCRIPT_FOLDER=$(realpath $SCRIPT_FOLDER)
 
-PODVM_BINARY_DEF=registry.redhat.io/openshift-sandboxed-containers/osc-podvm-payload-rhel9:1.9.0
+PODVM_BINARY_DEF=quay.io/redhat-user-workloads/ose-osc-tenant/osc-podvm-payload:osc-podvm-payload-on-push-rmvjh-build-image-index
 PODVM_BINARY_LOCATION_DEF=/podvm-binaries.tar.gz
-PAUSE_BUNDLE_DEF=quay.io/confidential-containers/podvm-binaries-ubuntu-amd64:v0.13.0
+PAUSE_BUNDLE_DEF=quay.io/redhat-user-workloads/ose-osc-tenant/osc-podvm-payload:osc-podvm-payload-on-push-rmvjh-build-image-index
 PAUSE_BUNDLE_LOCATION_DEF=/pause-bundle.tar.gz
 
 function local_help()
@@ -71,6 +71,9 @@ export PAUSE_BUNDLE_LOCATION
 export DEST_PATH=$ARTIFACTS_FOLDER
 $ARTIFACTS_FOLDER/get-artifacts.sh
 
+# create luks-config.tar.gz
+"$ARTIFACTS_FOLDER/luks-scratch/build.sh"
+
 echo ""
 ls $ARTIFACTS_FOLDER
 
@@ -80,6 +83,7 @@ EXTRA_ARGS=""
 virt-customize \
     --copy-in $ARTIFACTS_FOLDER/podvm-binaries.tar.gz:/tmp/ \
     --copy-in $ARTIFACTS_FOLDER/pause-bundle.tar.gz:/tmp/ \
+    --copy-in $ARTIFACTS_FOLDER/luks-config.tar.gz:/tmp/ \
     --run $ARTIFACTS_FOLDER/podvm_maker.sh \
     --uninstall cloud-init \
     --uninstall WALinuxAgent \

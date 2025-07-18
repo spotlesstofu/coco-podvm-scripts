@@ -15,7 +15,7 @@ RUN if [[ -n "${ACTIVATION_KEY}" && -n "${ORG_ID}" ]]; then \
 RUN dnf -y update
 
 # packages needed
-RUN dnf install -y cpio systemd-ukify jq openssl qemu-img libguestfs
+RUN dnf install -y cpio systemd-ukify jq openssl qemu-img libguestfs podman && dnf clean all
 
 # Add EPEL
 RUN curl -O https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
@@ -32,7 +32,7 @@ ADD scripts /scripts
 ENV LIBGUESTFS_BACKEND=direct
 
 # default env for certs
-ENV IMAGE_CERTIFICATE_PEM=/public.pem
-ENV IMAGE_PRIVATE_KEY=/private.key
+# ENV IMAGE_CERTIFICATE_PEM=/public.pem
+# ENV IMAGE_PRIVATE_KEY=/private.key
 
 CMD ["/scripts/create-verity-podvm.sh", "/disk.qcow2"]

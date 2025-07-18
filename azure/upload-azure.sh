@@ -11,12 +11,12 @@ SCRIPT_FOLDER=$(realpath $SCRIPT_FOLDER)
 
 function local_help()
 {
-    echo "Usage: $0 <INPUT_IMAGE> <DER_CERTIFICATE>"
+    echo "Usage: $0 <INPUT_IMAGE> [<DER_CERTIFICATE>]"
     echo "Usage: $0 help"
     echo ""
     echo "The purpose of this script is to take a disk and:"
     echo "1. convert the disk into vhd"
-    echo "2. create a deployment with a custom secureboot certificate"
+    echo "2. if DER_CERTIFICATE is defined, create a deployment with a custom secureboot certificate"
     echo "3. upload the vhd to Azure"
     echo "4. create an Azure image gallery with that disk"
     echo ""
@@ -47,10 +47,10 @@ if [[ $INPUT_IMAGE == "help" ]]; then
     exit 0
 fi
 
-if [ -z ${IMAGE_CERTIFICATE_DER} ]; then
-    local_help
-    exit 1
-fi
+# if [ -z ${IMAGE_CERTIFICATE_DER} ]; then
+#     local_help
+#     exit 1
+# fi
 
 if [ -z ${AZURE_RESOURCE_GROUP} ]; then
     echo "AZURE_RESOURCE_GROUP is unset. Set it with AZURE_RESOURCE_GROUP=your-rg"
@@ -89,7 +89,9 @@ function print_params()
     echo "IMAGE_DEFINITION_OFFER: $IMAGE_DEFINITION_OFFER"
     echo "IMAGE_DEFINITION_SKU: $IMAGE_DEFINITION_SKU"
     echo "IMAGE_VERSION: $IMAGE_VERSION"
-    echo "IMAGE_CERTIFICATE_DER: $IMAGE_CERTIFICATE_DER"
+    if [[ -n "$IMAGE_CERTIFICATE_DER" ]]; then
+        echo "IMAGE_CERTIFICATE_DER: $IMAGE_CERTIFICATE_DER"
+    fi
     echo "AZURE_SB_TEMPLATE: $AZURE_SB_TEMPLATE"
     echo "AZURE_DEPLOYMENT_NAME: $AZURE_DEPLOYMENT_NAME"
     echo ""
@@ -375,6 +377,8 @@ function get_image_id() {
 
 function create_signed_image_version()
 {
+    echo "Creating Azure image version with custom certificate"
+
     STORAGE_ID=$(az storage account show --name $STORAGE_ACCOUNT_NAME --resource-group $AZURE_RESOURCE_GROUP --query "id" -o tsv)
 
     BASE64_CERT=$(base64 -w0 $IMAGE_CERTIFICATE_DER)
@@ -391,7 +395,35 @@ function create_signed_image_version()
     .resources[0].properties.securityProfile.uefiSettings.additionalSignatures.db[0].value[0] = $value' \
    $AZURE_SB_TEMPLATE > az-deployment.json
 
-   az deployment group create --name $AZURE_DEPLOYMENT_NAME --resource-group $AZURE_RESOURCE_GROUP --template-file az-deployment.json
+   az deployment group create \
+    --name $AZURE_DEPLOYMENT_NAME \
+    --resource-group $AZURE_RESOURCE_GROUP \
+    --template-file az-deployment.json ||
+    error_exit "Failed to create the deployment group"
+}
+
+function create_unsigned_image_version()
+{
+    echo "Creating Azure image version"
+    # Create the image version from the VHD
+    az sig image-version create \
+        --resource-group "${AZURE_RESOURCE_GROUP}" \
+        --gallery-name "${IMAGE_GALLERY_NAME}" \
+        --gallery-image-definition "${IMAGE_DEFINITION_NAME}" \
+        --gallery-image-version "${IMAGE_VERSION}" \
+        --os-vhd-uri "${VHD_URL}" \
+        --os-vhd-storage-account "${STORAGE_ACCOUNT_NAME}" \
+        --target-regions "${AZURE_REGION}" ||
+        error_exit "Failed to create the image version"
+}
+
+function create_image_version()
+{
+    if [[ -n "${IMAGE_CERTIFICATE_DER}" ]]; then
+        create_signed_image_version
+    else
+        create_unsigned_image_version
+    fi
 }
 
 function delete_storage_account()
@@ -400,7 +432,7 @@ function delete_storage_account()
         --name "${STORAGE_ACCOUNT_NAME}" \
         --resource-group "${AZURE_RESOURCE_GROUP}" \
         --yes ||
-        echo "Failed to delete the storage account"
+        error_exit "Failed to delete the storage account"
 }
 
 function handle_ctrlc()
@@ -439,7 +471,7 @@ echo ""
 create_image_definition
 echo ""
 
-create_signed_image_version
+create_image_version
 echo ""
 
 storage_account_created=0
