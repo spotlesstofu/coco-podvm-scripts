@@ -77,6 +77,13 @@ spec:
       type: array
       default:
         - linux-root/amd64
+    - name: podvm-payload-image
+      type: string
+      default: quay.io/redhat-user-workloads/ose-osc-tenant/osc-podvm-payload@sha256:73a82ac1c252f068f9d046a36dfca7932202ad728f94fc575a332d8707650905
+    - name: test-the-verity-task
+      default: "false"
+      type: string
+      description: Run the task from the current checkout, ignore the trusted bundle.
   results:
     - description: ""
       name: CHAINS-GIT_URL
@@ -186,7 +193,7 @@ spec:
         - name: OUTPUT_IMAGE
           value: $(params.output-image)
         - name: PODVM_PAYLOAD_IMAGE
-          value: quay.io/redhat-user-workloads/ose-osc-tenant/osc-podvm-payload@sha256:73a82ac1c252f068f9d046a36dfca7932202ad728f94fc575a332d8707650905
+          value: $(params.podvm-payload-image)
       runAfter:
         - prefetch-dependencies
       taskRef:
@@ -203,6 +210,37 @@ spec:
           operator: in
           values:
             - "true"
+        - input: $(params.test-the-verity-task)
+          operator: in
+          values:
+            - "false"
+    # Run the task from the current code checkout to test if it works.
+    - name: build-vm-image
+      timeout: "3h0m00s"
+      matrix:
+        params:
+          - name: PLATFORM
+            value:
+              - $(params.build-platforms)
+      params:
+        - name: SOURCE_ARTIFACT
+          value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        - name: OUTPUT_IMAGE
+          value: $(params.output-image)
+        - name: PODVM_PAYLOAD_IMAGE
+          value: $(params.podvm-payload-image)
+      runAfter:
+        - prefetch-dependencies
+      taskRef:
+        name: build-dm-verity-image
+      when:
+        - input: $(tasks.init.results.build)
+          operator: in
+          values:
+            - "true"
+        - input: $(params.test-the-verity-task)
+          operator: in
+          values: "true"
     - name: build-image-index
       timeout: "3h0m00s"
       params:
