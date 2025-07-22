@@ -1,2 +1,4 @@
 certs/
 builddir/
+measurements/*.qcow2
+measurements/*.json
