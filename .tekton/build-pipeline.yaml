@@ -85,6 +85,12 @@ spec:
       description: Whether to enable privileged mode, should be used only with remote VMs
       name: privileged-nested
       type: string
+    - name: build-platforms
+      description: List of platforms to build the disk images on. The available
+        set of values is determined by the configuration of the multi-platform-controller.
+      type: array
+      default:
+        - linux-root/amd64
   results:
     - name: IMAGE_URL
       value: $(tasks.build-image-index.results.IMAGE_URL)
@@ -168,6 +174,12 @@ spec:
         - name: netrc
           workspace: netrc
     - name: build-container
+      timeout: "0h40m00s"
+      matrix:
+        params:
+          - name: PLATFORM
+            value:
+              - $(params.build-platforms)
       params:
         - name: SOURCE_ARTIFACT
           value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
@@ -191,7 +203,6 @@ spec:
           operator: in
           values:
             - "true"
-      workspaces: []
     - name: build-image-index
       params:
         - name: IMAGE
