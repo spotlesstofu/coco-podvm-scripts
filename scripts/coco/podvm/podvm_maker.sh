@@ -53,6 +53,8 @@ chmod +x /usr/libexec/gen-issue
 cat  <<EOF > /etc/systemd/system/gen-issue.service
 [Unit]
 Description=Generate issue to print to serial console at startup
+Before=serial-getty@ttyS0.service
+After=process-user-data.service
 
 [Service]
 Type=oneshot
