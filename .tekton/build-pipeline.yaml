@@ -214,7 +214,7 @@ spec:
         - name: BUILD_ARGS
           value:
             - $(params.build-args[*])
-            - disk_image=$(tasks.build-vm-image.results.IMAGE_URL)@$(tasks.build-vm-image.results.IMAGE_DIGEST)
+            - disk_image=$(tasks.build-vm-image.results.IMAGE_REFERENCE)
         - name: BUILD_ARGS_FILE
           value: $(params.build-args-file)
         - name: PRIVILEGED_NESTED
