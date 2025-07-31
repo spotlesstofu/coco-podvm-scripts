@@ -341,6 +341,17 @@ spec:
         buildah_container=$(buildah from scratch)
         buildah add $buildah_container /output/qcow2/disk.qcow2 image/podvm.qcow2
         buildah add $buildah_container /output/qcow2/measurements.json image/measurements.json
+        buildah config --label com.redhat.component='osc-dm-verity-image' $buildah_container
+        buildah config --label description='PodVM with DM-Verity support' $buildah_container
+        buildah config --label distribution-scope=private $buildah_container
+        buildah config --label io.k8s.description='PodVM image for confidential computing with device mapper verity support' $buildah_container
+        buildah config --label name='osc-dm-verity-image' $buildah_container
+        buildah config --label release='1' $buildah_container
+        buildah config --label url='https://github.com/confidential-devhub/coco-podvm-scripts' $buildah_container
+        buildah config --label vcs-ref='main' $buildah_container
+        buildah config --label vcs-type='git' $buildah_container
+        buildah config --label vendor='Red Hat' $buildah_container
+        buildah config --label version='1.10.0' $buildah_container
         buildah commit $buildah_container $image_name
         buildah push --digestfile image-digest --authfile /.docker/config.json --retry 10 --all $image_name $OUTPUT_IMAGE
 
