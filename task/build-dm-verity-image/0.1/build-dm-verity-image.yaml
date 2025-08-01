@@ -31,6 +31,9 @@ spec:
     - name: PODVM_PAYLOAD_IMAGE
       description: URL to the PodVM payload image.
       type: string
+    - name: BASE_IMAGE
+      type: string
+      default: registry.redhat.io/ubi9@sha256:0fa3e48369775f03b640a28cd5b55e6410569fa149f1827240619169463a7833
   results:
     - description: Digest of the manifest list just built
       name: IMAGE_DIGEST
@@ -49,6 +52,8 @@ spec:
         value: 'registry.access.redhat.com/ubi9/buildah:9.5-1739778322'
       - name: PODVM_PAYLOAD_IMAGE
         value: $(params.PODVM_PAYLOAD_IMAGE)
+      - name: BASE_IMAGE
+        value: $(params.BASE_IMAGE)
       - name: SBOM_TYPE
         value: spdx
     volumeMounts:
@@ -330,6 +335,7 @@ spec:
         set -ex
 
         export OUTPUT_IMAGE="$OUTPUT_IMAGE"
+        export BASE_IMAGE="$BASE_IMAGE"
 
         REMOTESSHEOF
 
@@ -338,7 +344,7 @@ spec:
         dnf -y install buildah skopeo pigz jq
 
         image_name="dm-verity-image"
-        buildah_container=$(buildah from scratch)
+        buildah_container=$(buildah from "$BASE_IMAGE")
         buildah add $buildah_container /output/qcow2/disk.qcow2 image/podvm.qcow2
         buildah add $buildah_container /output/qcow2/measurements.json image/measurements.json
         buildah config --label com.redhat.component='osc-dm-verity-image' $buildah_container
