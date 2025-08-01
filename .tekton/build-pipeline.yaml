@@ -190,14 +190,7 @@ spec:
       runAfter:
         - prefetch-dependencies
       taskRef:
-        resolver: bundles
-        params:
-          - name: name
-            value: build-dm-verity-image
-          - name: bundle
-            value: quay.io/konflux-ci/ose-osc-tenant/build-dm-verity-image-task:0.1@sha256:7618e7148148e8d693ef5e56de84e4052337367f3b0e61ce1bb00cc49a13e5a8
-          - name: kind
-            value: task
+        name: build-dm-verity-image
       when:
         - input: $(tasks.init.results.build)
           operator: in
