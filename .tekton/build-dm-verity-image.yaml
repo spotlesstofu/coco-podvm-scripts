@@ -152,6 +152,7 @@ spec:
         export OUTPUT_IMAGE="$OUTPUT_IMAGE"
         export BUILDAH_IMAGE="$BUILDAH_IMAGE"
         PODVM_PAYLOAD_IMAGE="$PODVM_PAYLOAD_IMAGE"
+        export BASE_IMAGE="$BASE_IMAGE"
 
         REMOTESSHEOF
 
@@ -188,6 +189,8 @@ spec:
         time sudo podman exec -t --latest /workspace/scripts/script-verity.sh
 
         time sudo podman exec -t --latest /workspace/scripts/podvm-measure.sh
+
+        sudo podman pull --authfile=$BUILD_DIR/.docker/config.json "$BASE_IMAGE"
 
         time sudo podman run --authfile=$BUILD_DIR/.docker/config.json --rm -it --privileged --pull=newer --security-opt label=type:unconfined_t \
           -v $BUILD_DIR/.docker:/.docker \
